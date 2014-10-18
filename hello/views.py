@@ -29,9 +29,10 @@ def register(request):
         'request': request
     }
     if request.method == 'GET':
-        params['form'] = UserCreationForm()
         return render(request, 'register.html', params)
     elif request.method == 'POST':
+        # validate request data
+        
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
@@ -39,7 +40,6 @@ def register(request):
         params.update(csrf(request))
         params['nameInput'] = request.POST['fname']
         params['emailInput'] = request.POST['email']
-        params['emailError'] = "dam"
         params['form'] = UserCreationForm()
         return render(request, 'register.html', params)
     
