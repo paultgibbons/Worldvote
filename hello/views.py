@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
+from django.contrib.auth.forms import UserCreationForm
 import sys
 
 from .models import Greeting
@@ -16,8 +18,8 @@ def logout(request):
     return render(request, 'login.html', {'user': None, 'request': request})
     
 def register(request):
-    print >>sys.stderr, 'hello, James!'
     params = {
+        'user': None,
         'nameInput': '',
         'emailInput': '',
         'nameError': '',
@@ -27,13 +29,18 @@ def register(request):
         'request': request
     }
     if request.method == 'GET':
+        params['form'] = UserCreationForm()
         return render(request, 'register.html', params)
     elif request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/account')
         params.update(csrf(request))
         params['nameInput'] = request.POST['name']
         params['emailInput'] = request.POST['email']
-        params['nameError'] = 'its not working'
-        print params
+        params['emailError'] = "dam"
+        params['form'] = UserCreationForm()
         return render(request, 'register.html', params)
     
 def account(request):
