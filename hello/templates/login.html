@@ -1,3 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Worldvote{% endblock %}
-{% block content %}{% endblock %}
+{% block content %}
+<table>
+    <tr>
+      <td class="label">
+        Email
+      </td>
+      <td>
+        <input type="text" name="email" value="{{emailInput}}">
+      </td>
+      <td class="error">
+        {{emailError}}
+      </td>
+    </tr>
+
+    <tr>
+      <td class="label">
+        Password
+      </td>
+      <td>
+        <input type="password" name="password" value="">
+      </td>
+      <td class="error">
+        {{passwordError}}
+      </td>
+    </tr>
+  </table>
+
+  <input type="submit">
+{% endblock %}
