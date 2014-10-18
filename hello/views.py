@@ -37,7 +37,7 @@ def register(request):
             form.save()
             return HttpResponseRedirect('/account')
         params.update(csrf(request))
-        params['nameInput'] = request.POST['name']
+        params['nameInput'] = request.POST['fname']
         params['emailInput'] = request.POST['email']
         params['emailError'] = "dam"
         params['form'] = UserCreationForm()
