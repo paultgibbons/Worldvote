@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans'>
+        <link rel="stylesheet" href="{% static "style.css" %}">
+    </head>
+    <body>
+        <nav>
+            <a href="" id="nav-title">Worldvote</a>
+            <input type="text" id="nav-search" placeholder="Search">
+            {% if user %}
+                <a href="https://{{ request.get_host }}/logout" class="nav-link">Logout</a>
+                <a href="https://{{ request.get_host }}/account" class="nav-link">TODO</a>
+                <a href="https://{{ request.get_host }}/add" class="nav-link">Add</a>
+            {% else %}
+                <a href="https://{{ request.get_host }}/register" class="nav-link">Register</a>
+                <a href="https://{{ request.get_host }}/login" class="nav-link">Login</a>
+            {% endif %}
+        </nav>
+        {% block content %}{% endblock %}
+    </body>
+</html>

@@ -5,7 +5,7 @@ from .models import Greeting
 
 # Create your views here.
 def index(request):
-    return render(request, 'userpage.html', {})
+    return render(request, 'index.html', {'user': None})
 
 
 def db(request):
