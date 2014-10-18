@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.core.context_processors import csrf
+import sys
 
 from .models import Greeting
 
@@ -11,10 +13,28 @@ def login(request):
     return render(request, 'login.html', {'user': None, 'request': request})
     
 def logout(request):
-    return render(request, 'logout.html', {'user': None, 'request': request})
+    return render(request, 'login.html', {'user': None, 'request': request})
     
 def register(request):
-    return render(request, 'register.html', {'user': None, 'request': request})
+    print >>sys.stderr, 'hello, James!'
+    params = {
+        'nameInput': '',
+        'emailInput': '',
+        'nameError': '',
+        'emailError': '',
+        'passwordError': '',
+        'verifyError': '',
+        'request': request
+    }
+    if request.method == 'GET':
+        return render(request, 'register.html', params)
+    elif request.method == 'POST':
+        params.update(csrf(request))
+        params['nameInput'] = request.POST['name']
+        params['emailInput'] = request.POST['email']
+        params['nameError'] = 'its not working'
+        print params
+        return render(request, 'register.html', params)
     
 def account(request):
     return render(request, 'account.html', {'user': None, 'request': request})

@@ -1,3 +1,57 @@
 {% extends "base.html" %}
 {% block title %}Worldvote - Register{% endblock %}
-{% block content %}{% endblock %}
+{% block content %}
+<form method="POST"> {% csrf_token %}
+    <table>
+        <tr>
+          <td class="label">
+            Name
+          </td>
+          <td>
+            <input type="text" name="name" value="{{nameInput}}">
+          </td>
+          <td class="error">
+            {{nameError}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Password
+          </td>
+          <td>
+            <input type="password" name="password" value="">
+          </td>
+          <td class="error">
+            {{passwordError}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Verify Password
+          </td>
+          <td>
+            <input type="password" name="verify" value="">
+          </td>
+          <td class="error">
+            {{verifyError}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Email (optional)
+          </td>
+          <td>
+            <input type="text" name="email" value="{{emailInput}}">
+          </td>
+          <td class="error">
+            {{emailError}}
+          </td>
+        </tr>
+      </table>
+
+      <input type="submit">
+    </form>
+{% endblock %}
