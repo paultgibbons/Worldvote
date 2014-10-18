@@ -4,8 +4,44 @@ from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth.forms import UserCreationForm
 import sys
+import re
 
 from .models import Greeting
+
+NAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+
+'''
+Method to validate user form
+
+Keyword Arguments:
+
+name -- provided name
+pw -- provided password 
+verify -- provided verify password
+email -- provided email
+
+return:
+
+nameError
+verifyError
+emailError
+
+'''
+def validate(name, pw, verify, email):
+    nameError = None
+    emailError = None
+    verifyError = None
+    if not (name and NAME_RE.match(name)):
+        nameError = 'Invalid Name'
+    if not (pw and verify):
+        verifyError = 'Invlaid Password'
+    elif pw != verify:
+        verifyError = 'Passwords do not match'
+    if not (email and EMAIL_RE.match(email)):
+        emailError = 'Invalid email'
+
+    return nameError, verifyError, emailError    
 
 # Create your views here.
 def index(request):
