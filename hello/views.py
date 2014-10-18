@@ -13,7 +13,7 @@ def login(request):
     return render(request, 'login.html', {'user': None, 'request': request})
     
 def logout(request):
-    return render(request, 'login.html', {'user': None, 'request': request})
+    return render(request, 'index.html', {'user': None, 'request': request})
     
 def register(request):
     print >>sys.stderr, 'hello, James!'
