@@ -2,13 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
-from django.contrib.auth.forms import UserCreationForm
 import sys
 import re
 
 from .models import Greeting
 
-NAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
 '''
@@ -29,13 +28,13 @@ emailError
 
 '''
 def validate(name, pw, verify, email):
-    nameError = None
-    emailError = None
-    verifyError = None
+    nameError = ''
+    emailError = ''
+    verifyError = ''
     if not (name and NAME_RE.match(name)):
         nameError = 'Invalid Name'
     if not (pw and verify):
-        verifyError = 'Invlaid Password'
+        verifyError = 'Invalid Password'
     elif pw != verify:
         verifyError = 'Passwords do not match'
     if not (email and EMAIL_RE.match(email)):
@@ -68,15 +67,23 @@ def register(request):
         return render(request, 'register.html', params)
     elif request.method == 'POST':
         # validate request data
-        
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
+        name = request.POST['name']
+        pw1 = request.POST['password1']
+        pw2 = request.POST['password2']
+        email = request.POST['email']
+
+        nameError, verifyError, emailError = validate(name, pw1, pw2, email)
+        if nameError + verifyError + emailError == '':
+            # todo
             form.save()
             return HttpResponseRedirect('/account')
+
         params.update(csrf(request))
-        params['nameInput'] = request.POST['fname']
+        params['nameInput'] = request.POST['name']
         params['emailInput'] = request.POST['email']
-        params['form'] = UserCreationForm()
+        params['nameError'] = nameError
+        params['verifyError'] = verifyError
+        params['emailError'] = emailError
         return render(request, 'register.html', params)
     
 def account(request):
