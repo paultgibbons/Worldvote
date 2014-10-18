@@ -8,15 +8,15 @@
     </head>
     <body>
         <nav>
-            <a href="" id="nav-title">Worldvote</a>
+            <a href="//{{ request.get_host }}" id="nav-title">Worldvote</a>
             <input type="text" id="nav-search" placeholder="Search">
             {% if user %}
-                <a href="https://{{ request.get_host }}/logout" class="nav-link">Logout</a>
-                <a href="https://{{ request.get_host }}/account" class="nav-link">TODO</a>
-                <a href="https://{{ request.get_host }}/add" class="nav-link">Add</a>
+                <a href="//{{ request.get_host }}/logout" class="nav-link">Logout</a>
+                <a href="//{{ request.get_host }}/account" class="nav-link">TODO</a>
+                <a href="//{{ request.get_host }}/add" class="nav-link">Add</a>
             {% else %}
-                <a href="https://{{ request.get_host }}/register" class="nav-link">Register</a>
-                <a href="https://{{ request.get_host }}/login" class="nav-link">Login</a>
+                <a href="//{{ request.get_host }}/register" class="nav-link">Register</a>
+                <a href="//{{ request.get_host }}/login" class="nav-link">Login</a>
             {% endif %}
         </nav>
         {% block content %}{% endblock %}
