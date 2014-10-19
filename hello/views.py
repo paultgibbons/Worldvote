@@ -8,7 +8,6 @@ import os.path
 import sys
 import re
 
-from .models import Greeting
 from .models import User
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
@@ -167,13 +166,8 @@ def profile(request, userid):
 
 # TODO: delete
 def db(request):
-
-    greeting = Greeting()
-    greeting.save()
-
-    greetings = Greeting.objects.all()
     users = User.objects.all()
 
-    return render(request, 'db.html', {'request':request, 'greetings': greetings, 'users':users})
+    return render(request, 'db.html', {'request':request,'users':users})
 
 
