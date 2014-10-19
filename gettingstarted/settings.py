@@ -102,7 +102,7 @@ STATIC_URL = '/static/'
 SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))
 BUILDOUT_DIR = os.path.abspath(os.path.join(SETTINGS_DIR, '..'))
 
-MEDIA_ROOT = os.path.join(BUILDOUT_DIR, 'media')
+MEDIA_ROOT = 'mediafiles'
 MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = (

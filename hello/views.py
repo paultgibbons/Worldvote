@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from datetime import datetime
+
+import os.path
 import sys
 import re
 
@@ -28,23 +30,6 @@ def alreadyExists(email):
     
     return len(dictfetchall(cursor)) != 0
 
-'''
-Method to validate user form
-
-Keyword Arguments:
-
-name -- provided name
-pw -- provided password 
-verify -- provided verify password
-email -- provided email
-
-return:
-
-nameError
-verifyError
-emailError
-
-'''
 def validate(name, pw, verify, email):
     nameError = ''
     emailError = ''
@@ -70,6 +55,9 @@ def index(request):
     return render(request, 'index.html', params)
 
 def login(request):
+    if 'user_email' in request.session:
+        return HttpResponseRedirect('/')
+
     # TODO: redirect if user isn't None?
     params = {
         'user': None,
@@ -107,6 +95,9 @@ def logout(request):
     return HttpResponseRedirect('/')
     
 def register(request):
+    if 'user_email' in request.session:
+        return HttpResponseRedirect('/')
+
     params = {
         'user': None,
         'nameInput': '',
@@ -126,11 +117,16 @@ def register(request):
         pw1 = request.POST['password1']
         pw2 = request.POST['password2']
         email = request.POST['email']
-        image = request.POST['image']
+        image = request.FILES['image']
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
-            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=image)
+            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=image, imgurl='')
+            userModel.save()
+            src = str(userModel.id) + os.path.splitext(image.name)[1]
+            image.name = src
+            userModel.imgurl = src
+            userModel.image = image
             userModel.save()
             return HttpResponseRedirect('/')
         params['nameInput'] = request.POST['name']
@@ -141,18 +137,37 @@ def register(request):
         return render(request, 'register.html', params)
     
 def account(request):
-    return render(request, 'account.html', {'user': None, 'request': request})
+    params = { 'user': None, 'request' : request }
+    if 'user_email' in request.session:
+        params['user'] = User.objects.get(email=request.session['user_email'])
+        return render(request, 'account.html', params)
+    else:
+        return HttpResponseRedirect('/login')
     
 def add(request):
-    return render(request, 'add.html', {'user': None, 'request': request})
+    params = { 'user': None, 'request' : request }
+    if 'user_email' in request.session:
+        params['user'] = User.objects.get(email=request.session['user_email'])
+        return render(request, 'add.html', params)
+    else:
+        return HttpResponseRedirect('/login')
 
-def profile(request):
-    return render(request, 'profile.html', {'user': None, 'request': request})
+def profile(request, userid):
+    params = { 'user': None, 'request' : request }
+    if 'user_email' in request.session:
+        params['user'] = User.objects.get(email=request.session['user_email'])
+
+    try:
+        params['person'] = User.objects.get(id=userid)
+    except:
+        params['person'] = None
+
+    return render(request, 'profile.html', params)
 
 # TODO: delete
 def db(request):
     users = User.objects.all()
 
-    return render(request, 'db.html', {'users':users})
+    return render(request, 'db.html', {'request':request,'users':users})
 
 
