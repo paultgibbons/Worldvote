@@ -2,10 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
+from datetime import datetime
 import sys
 import re
 
 from .models import Greeting
+from .models import User
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
@@ -74,10 +76,9 @@ def register(request):
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
-            # todo
-            form.save()
-            return HttpResponseRedirect('/account')
-
+            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image='')
+            userModel.save()
+            return HttpResponseRedirect('/db')
         params.update(csrf(request))
         params['nameInput'] = request.POST['name']
         params['emailInput'] = request.POST['email']
@@ -102,7 +103,8 @@ def db(request):
     greeting.save()
 
     greetings = Greeting.objects.all()
+    users = User.objects.all()
 
-    return render(request, 'db.html', {'greetings': greetings})
+    return render(request, 'db.html', {'greetings': greetings, 'users':users})
 
 
