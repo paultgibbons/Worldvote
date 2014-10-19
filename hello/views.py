@@ -6,7 +6,6 @@ from datetime import datetime
 import sys
 import re
 
-from .models import Greeting
 from .models import User
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
@@ -152,13 +151,8 @@ def profile(request):
 
 # TODO: delete
 def db(request):
-
-    greeting = Greeting()
-    greeting.save()
-
-    greetings = Greeting.objects.all()
     users = User.objects.all()
 
-    return render(request, 'db.html', {'greetings': greetings, 'users':users})
+    return render(request, 'db.html', {'users':users})
 
 
