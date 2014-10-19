@@ -116,10 +116,11 @@ def register(request):
         pw1 = request.POST['password1']
         pw2 = request.POST['password2']
         email = request.POST['email']
+        image = request.POST['image']
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
-            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image='')
+            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=image)
             userModel.save()
             return HttpResponseRedirect('/')
         params['nameInput'] = request.POST['name']
