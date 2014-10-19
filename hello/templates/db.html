@@ -7,4 +7,8 @@
     <li>{{ greeting.when }}</li>
 {% endfor %}
 
+{% for user in users %}
+    <li>{{ user.name }}, {{ user.email }}, {{ user.score }}, {{ user.password }}</li>
+{% endfor %}
+
 </ul>

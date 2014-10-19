@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Worldvote{% endblock %}
 {% block content %}
-<table>
+<form method="POST"> {% csrf_token %}
+  <table>
     <tr>
       <td class="label">
         Email
@@ -28,4 +29,5 @@
   </table>
 
   <input type="submit">
+</form>
 {% endblock %}
