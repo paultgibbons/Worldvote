@@ -12,6 +12,15 @@ from .models import User
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
+def alreadyExists(email):
+    from django.db import connection, transaction
+    cursor = connection.cursor()
+
+    # Data modifying operation - commit required
+    cursor.execute("SELECT email FROM User WHERE email = %s", email)
+    
+    return len(dictfetchall(cursor)) != 0
+
 '''
 Method to validate user form
 
@@ -41,6 +50,8 @@ def validate(name, pw, verify, email):
         verifyError = 'Passwords do not match'
     if not (email and EMAIL_RE.match(email)):
         emailError = 'Invalid email'
+    if alreadyExists(email):
+        emailError = 'email already in use'
 
     return nameError, verifyError, emailError    
 
