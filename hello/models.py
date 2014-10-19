@@ -10,7 +10,7 @@ class User(models.Model):
     email = models.CharField(max_length=64, primary_key=True)
     last_update = models.DateTimeField()
     score = models.IntegerField()
-    image = models.CharField(max_length=256)
+    image = models.ImageField(upload_to='/media/')
 
 class Vote(models.Model):
     voter = models.CharField(max_length=64)
