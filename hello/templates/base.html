@@ -12,7 +12,7 @@
             <input type="text" id="nav-search" placeholder="Search">
             {% if user %}
                 <a href="//{{ request.get_host }}/logout" class="nav-link">Logout</a>
-                <a href="//{{ request.get_host }}/account" class="nav-link">TODO</a>
+                <a href="//{{ request.get_host }}/account" class="nav-link">{{ user.name }}</a>
                 <a href="//{{ request.get_host }}/add" class="nav-link">Add</a>
             {% else %}
                 <a href="//{{ request.get_host }}/register" class="nav-link">Register</a>

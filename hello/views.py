@@ -12,12 +12,20 @@ from .models import User
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
+def dictfetchall(cursor):
+    "Returns all rows from a cursor as a dict"
+    desc = cursor.description
+    return [
+        dict(zip([col[0] for col in desc], row))
+        for row in cursor.fetchall()
+    ]
+
 def alreadyExists(email):
     from django.db import connection, transaction
     cursor = connection.cursor()
 
     # Data modifying operation - commit required
-    cursor.execute("SELECT email FROM User WHERE email = %s", email)
+    cursor.execute("SELECT email FROM hello_User WHERE email = '%s'" % email)
     
     return len(dictfetchall(cursor)) != 0
 
@@ -51,19 +59,53 @@ def validate(name, pw, verify, email):
     if not (email and EMAIL_RE.match(email)):
         emailError = 'Invalid email'
     if alreadyExists(email):
-        emailError = 'email already in use'
+        emailError = 'Email already in use'
 
     return nameError, verifyError, emailError    
 
 # Create your views here.
 def index(request):
-    return render(request, 'index.html', {'user': None, 'request': request})
+    params = { 'user': None, 'request' : request }
+    if 'user_email' in request.session:
+        params['user'] = User.objects.get(email=request.session['user_email'])
+    return render(request, 'index.html', params)
 
 def login(request):
-    return render(request, 'login.html', {'user': None, 'request': request})
+    # TODO: redirect if user isn't None?
+    params = {
+        'user': None,
+        'emailInput': '',
+        'emailError': '',
+        'passwordError': '',
+        'request': request
+    }
+    params.update(csrf(request))
+    if request.method == 'GET':
+        return render(request, 'login.html', params)
+    elif request.method == 'POST':
+        email = request.POST['email']
+        pw = request.POST['password']
+
+        try:
+            user = User.objects.get(email=email);
+        except:
+            user = None
+
+        if user and pw == user.password:
+            request.session['user_email'] = email
+            return HttpResponseRedirect('/')
+
+        params['emailInput'] = email
+        params['emailError'] = 'Invalid username or password'
+        params['passwordError'] = ''
+        return render(request, 'login.html', params)
     
 def logout(request):
-    return render(request, 'index.html', {'user': None, 'request': request})
+    try:
+        del request.session['user_email']
+    except KeyError:
+        pass
+    return HttpResponseRedirect('/')
     
 def register(request):
     params = {
@@ -76,6 +118,7 @@ def register(request):
         'verifyError': '',
         'request': request
     }
+    params.update(csrf(request))
     if request.method == 'GET':
         return render(request, 'register.html', params)
     elif request.method == 'POST':
@@ -89,8 +132,7 @@ def register(request):
         if nameError + verifyError + emailError == '':
             userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image='')
             userModel.save()
-            return HttpResponseRedirect('/db')
-        params.update(csrf(request))
+            return HttpResponseRedirect('/')
         params['nameInput'] = request.POST['name']
         params['emailInput'] = request.POST['email']
         params['nameError'] = nameError
