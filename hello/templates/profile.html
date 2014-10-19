@@ -1,3 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Worldvote{% endblock %}
-{% block content %}{% endblock %}
+{% block content %}
+
+{% if person %}
+    {{ person.name }}, {{ person.email }}, {{ person.score }}, {{ person.password }} <img src="//{{ request.get_host }}/media/{{ person.imgurl }}"> <br>
+    {{ person.imgurl }}
+{% else %}
+    not found
+{% endif %}
+
+{% endblock %}

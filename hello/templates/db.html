@@ -8,7 +8,7 @@
 {% endfor %}
 
 {% for user in users %}
-    <li>{{ user.name }}, {{ user.email }}, {{ user.score }}, {{ user.password }}</li>
+    <li>{{ user.name }}, {{ user.email }}, {{ user.score }}, {{ user.password }}, <img src="//{{ request.get_host }}/media/{{ user.imgurl }}"></li>
 {% endfor %}
 
 </ul>

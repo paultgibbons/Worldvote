@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from datetime import datetime
+
+import os.path
 import sys
 import re
 
@@ -116,11 +118,16 @@ def register(request):
         pw1 = request.POST['password1']
         pw2 = request.POST['password2']
         email = request.POST['email']
-        image = request.POST['image']
+        image = request.FILES['image']
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
-            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=image)
+            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=image, imgurl='')
+            userModel.save()
+            src = str(userModel.id) + os.path.splitext(image.name)[1]
+            image.name = src
+            userModel.imgurl = src
+            userModel.image = image
             userModel.save()
             return HttpResponseRedirect('/')
         params['nameInput'] = request.POST['name']
@@ -167,6 +174,6 @@ def db(request):
     greetings = Greeting.objects.all()
     users = User.objects.all()
 
-    return render(request, 'db.html', {'greetings': greetings, 'users':users})
+    return render(request, 'db.html', {'request':request, 'greetings': greetings, 'users':users})
 
 
