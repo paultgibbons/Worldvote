@@ -2,43 +2,12 @@
 {% block title %}Worldvote{% endblock %}
 {% block content %}
 <table>
-    <tbody>
-        <tr>
-            <td>
-                Name:
-            </td>
-            <td>
-                Marky Gubatan
-            </td>
-            <!-- <td>
-                <button>Change!</button>
-            </td> -->
-        <tr>
-            <td>
-                Score:
-            </td>
-            <td>
-                -5000 or something
-            </td>
-            <!-- <td>
-            </td> -->
-        </tr>
-        <tr>
-            <td>
-                Image
-            </td>
-            <td>
-                <img src="http://web.engr.illinois.edu/~gubatan2/profile.png">
-            </td>
-            <!-- <td>
-                <button>Change!</button>
-            </td> -->
-        </tr>
-        <!-- <tr>
-            <td>
-                <button>Change password</button>
-            </td>
-        </tr> -->
-    </tbody>
+    <form action="delete">
+        <button>Delete</button>
+    </form>
+    <from action="reverse">
+        <button>Reverse Name</button>
+    </from>
+
 </table>
 {% endblock %}

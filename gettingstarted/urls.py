@@ -15,6 +15,8 @@ urlpatterns = patterns('',
     url(r'^account/?', hello.views.account, name='account'),
     url(r'^([0-9]+)/?', hello.views.profile, name='profile'),
     url(r'^logout/?', hello.views.logout, name='logout'),
+    url(r'^delete/?', hello.views.delete, name='delete'),
+    url(r'^reverse/?', hello.views.reverse, name='reverse'),
 
     url(r'^db', hello.views.db, name='db'),
     url(r'^admin/', include(admin.site.urls)),

@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from datetime import datetime
+from django.db import connection, transaction
 
 import os.path
 import sys
@@ -22,7 +23,6 @@ def dictfetchall(cursor):
     ]
 
 def alreadyExists(email):
-    from django.db import connection, transaction
     cursor = connection.cursor()
 
     # Data modifying operation - commit required
@@ -163,6 +163,33 @@ def profile(request, userid):
         params['person'] = None
 
     return render(request, 'profile.html', params)
+
+def delete(request):
+    # if request.method == 'GET':
+    # return HttpResponseRedirect('/')
+    email = 'error'
+    try:
+        email = request.session['user_email']
+        del request.session['user_email']
+    except KeyError:
+        pass
+    cursor = connection.cursor()
+    # Data modifying operation - commit required
+    cursor.execute("DELETE FROM hello_User WHERE email = '%s'" % email)
+    return HttpResponseRedirect('/login')
+
+def reverse(request):
+    email = 'error'
+    try:
+        email = request.session['user_email']
+        del request.session['user_email']
+    except KeyError:
+        pass
+    cursor = connection.cursor()
+    user = User.objects.get(email=email)
+    print >> sys.stderr, user.name
+    cursor.execute("UPDATE hello_User SET name = '%s' WHERE id = %d" % user.name[::-1], user.id)
+    return HttpResponseRedirect('/account')
 
 # TODO: delete
 def db(request):
