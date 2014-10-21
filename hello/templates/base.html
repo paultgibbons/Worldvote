@@ -16,7 +16,7 @@
             {% if user %}
                 <a href="//{{ request.get_host }}/logout" class="nav-link">Logout</a>
                 <a href="//{{ request.get_host }}/account" class="nav-link">{{ user.name }}</a>
-                <a href="//{{ request.get_host }}/add" class="nav-link">Add</a>
+                <!-- <a href="//{{ request.get_host }}/add" class="nav-link">Add</a> -->
             {% else %}
                 <a href="//{{ request.get_host }}/register" class="nav-link">Register</a>
                 <a href="//{{ request.get_host }}/login" class="nav-link">Login</a>
@@ -24,6 +24,9 @@
         </nav>
         <div id='blockContent'>
             {% block content %}{% endblock %}
+        </div>
+        <div id="footer">
+            <a href="//paultgibbons.com"> Creator's site </a>
         </div>
     </body>
 </html>
