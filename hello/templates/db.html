@@ -1,10 +1,32 @@
-<h1>Page View Report</h1>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Database</title>
+        <style>
+            ul {
+                font-size: 18px;
+                margin: 10px;
+            }
+            .name {
+                font-size: 24px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Worldvoters</h1>
 
+        <ul>
+        {% for user in users %}
+            <hr>
+            <ul>
+                <li class="name">Name: {{ user.name }}</li>
+                <li>Email: {{ user.email }}</li>
+                <li>Score: {{ user.score }}</li>
+            </ul>
+            <img src="//{{ request.get_host }}/media/{{ user.imgurl }}" width="500px" height="400px">
+        {% endfor %}
 
-<ul>
-
-{% for user in users %}
-    <li>{{ user.name }}, {{ user.email }}, {{ user.score }}, <img src="//{{ request.get_host }}/media/{{ user.imgurl }}"></li>
-{% endfor %}
-
-</ul>
+        </ul>
+    </body>
+</html>
