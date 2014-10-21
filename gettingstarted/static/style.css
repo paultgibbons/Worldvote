@@ -5,6 +5,11 @@ html, body {
     font-size: 16px;
 }
 
+form {
+    width: 256px;
+    display: inline;
+}
+
 nav {
     background: #888;
     height: 64px;
