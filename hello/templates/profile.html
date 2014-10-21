@@ -28,7 +28,7 @@
             <li id="email">Email: {{ person.email }}</li>
             <li id="score">Score: {{ person.score }} <span id="selfVote"></span></li>
         </ul>
-        <img src="//{{ request.get_host }}/media/{{ person.imgurl }}" width="500px" height="400px">
+        <img src="//{{ request.get_host }}/media/{{ person.imgurl }}" height="500px">
         <div id="voteOptions">
             {% csrf_token %}
             <div class="vote" id="up" onclick="upvote()">

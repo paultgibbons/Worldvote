@@ -227,6 +227,11 @@ def upvote(request):
     cursor = connection.cursor()
     score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
     if votee != voter:
+        last_update = cursor.execute("""SELECT last_update 
+                                        FROM hello_Vote 
+                                        WHERE voter = '%s' AND votee = '%s'"""
+                                        % (voter, votee)
+                                    )
         score += 1
         cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
     else:
