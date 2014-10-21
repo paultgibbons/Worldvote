@@ -57,6 +57,10 @@ nav a:active {
     margin-left: 16px;
 }
 
+#blockContent {
+    margin: 2% 6%;
+}
+
 .error {
     color: red;
 }

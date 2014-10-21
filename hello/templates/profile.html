@@ -3,8 +3,23 @@
 {% block content %}
 
 {% if person %}
-    {{ person.name }}, {{ person.email }}, {{ person.score }}, {{ person.password }} <img src="//{{ request.get_host }}/media/{{ person.imgurl }}"> <br>
-    {{ person.imgurl }}
+        <style>
+            ul {
+                font-size: 18px;
+                margin: 10px;
+            }
+            .name {
+                font-size: 24px;
+                font-weight: bold;
+            }
+        </style>
+
+        <ul>
+            <li class="name">Name: {{ person.name }}</li>
+            <li>Email: {{ person.email }}</li>
+            <li>Score: {{ person.score }}</li>
+        </ul>
+        <img src="//{{ request.get_host }}/media/{{ person.imgurl }}" width="500px" height="400px">
 {% else %}
     not found
 {% endif %}

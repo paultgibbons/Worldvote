@@ -20,6 +20,8 @@
                 <a href="//{{ request.get_host }}/login" class="nav-link">Login</a>
             {% endif %}
         </nav>
-        {% block content %}{% endblock %}
+        <div id='blockContent'>
+            {% block content %}{% endblock %}
+        </div>
     </body>
 </html>
