@@ -1,20 +1,16 @@
-from django.shortcuts import render
+from datetime import datetime
+from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.core.context_processors import csrf
-from datetime import datetime
 from django.db import connection, transaction
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
 from django.shortcuts import render_to_response
+from django.views.decorators.csrf import csrf_exempt
 import json
-
-from django.http import HttpResponse
-
 import os
 import os.path
-import sys
 import re
-
+import sys
 from .models import User
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
