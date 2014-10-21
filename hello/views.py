@@ -192,7 +192,10 @@ def delete(request):
     except KeyError:
         pass
     user = User.objects.get(email = email)
-    os.remove(BASE_DIR + '/../mediafiles/'+user.imgurl)
+    try:
+        os.remove(BASE_DIR + '/../mediafiles/'+user.imgurl)
+    except:
+        pass
 
     cursor = connection.cursor()
     cursor.execute("DELETE FROM hello_User WHERE email = '%s'" % email)
