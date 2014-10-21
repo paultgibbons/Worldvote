@@ -58,6 +58,12 @@ def index(request):
     # return render(request, 'index.html', params)
     return HttpResponseRedirect('/register')
 
+def search(request):
+    email = request.GET['email']
+    cursor = connection.cursor()
+    user = User.objects.get(email=email)
+    return HttpResponseRedirect('/%d' % int(user.id))
+
 def login(request):
     if 'user_email' in request.session:
         return HttpResponseRedirect('/account')
