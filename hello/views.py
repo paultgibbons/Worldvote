@@ -13,6 +13,7 @@ from .models import User
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+PASSWORD_RE = re.compile(r'^.{4,}')
 
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
@@ -38,6 +39,8 @@ def validate(name, pw, verify, email):
         nameError = 'Invalid Name'
     if not (pw and verify):
         verifyError = 'Invalid Password'
+    elif not PASSWORD_RE.match(pw):
+        verifyError = 'Password too short'
     elif pw != verify:
         verifyError = 'Passwords do not match'
     if not (email and EMAIL_RE.match(email)):
@@ -49,14 +52,15 @@ def validate(name, pw, verify, email):
 
 # Create your views here.
 def index(request):
-    params = { 'user': None, 'request' : request }
-    if 'user_email' in request.session:
-        params['user'] = User.objects.get(email=request.session['user_email'])
-    return render(request, 'index.html', params)
+    # params = { 'user': None, 'request' : request }
+    # if 'user_email' in request.session:
+    #     params['user'] = User.objects.get(email=request.session['user_email'])
+    # return render(request, 'index.html', params)
+    return HttpResponseRedirect('/register')
 
 def login(request):
     if 'user_email' in request.session:
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/account')
 
     # TODO: redirect if user isn't None?
     params = {
@@ -80,7 +84,7 @@ def login(request):
 
         if user and pw == user.password:
             request.session['user_email'] = email
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/account')
 
         params['emailInput'] = email
         params['emailError'] = 'Invalid username or password'
@@ -92,11 +96,11 @@ def logout(request):
         del request.session['user_email']
     except KeyError:
         pass
-    return HttpResponseRedirect('/')
+    return HttpResponseRedirect('/login')
     
 def register(request):
     if 'user_email' in request.session:
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/account')
 
     params = {
         'user': None,
@@ -128,7 +132,7 @@ def register(request):
             userModel.imgurl = src
             userModel.image = image
             userModel.save()
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/login')
         params['nameInput'] = request.POST['name']
         params['emailInput'] = request.POST['email']
         params['nameError'] = nameError
