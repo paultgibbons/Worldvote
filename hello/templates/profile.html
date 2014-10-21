@@ -29,7 +29,8 @@
             <li id="score">Score: {{ person.score }} <span id="selfVote"></span></li>
         </ul>
         <img src="//{{ request.get_host }}/media/{{ person.imgurl }}" width="500px" height="400px">
-        <div>
+        <div id="voteOptions">
+            {% csrf_token %}
             <div class="vote" id="up" onclick="upvote()">
                 Upvote
             </div>
@@ -55,6 +56,14 @@
                 request.setRequestHeader(
                     'Content-type',
                     'application/x-www-form-urlencoded'
+                );
+
+                var csrf_tag = document.getElementById("voteOptions").childNodes[1];
+                var csrf = csrf_tag.value;
+
+                request.setRequestHeader(
+                    "X-CSRFToken",
+                    csrf
                 );
 
                 request.onreadystatechange = function() {

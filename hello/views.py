@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect
 from django.db import connection, transaction
 from django.shortcuts import render
 from django.shortcuts import render_to_response
-from django.views.decorators.csrf import csrf_exempt
 import json
 import os
 import os.path
@@ -208,7 +207,6 @@ def reverse(request):
     cursor.execute("UPDATE hello_User SET name = '%s' WHERE id = %d" % (user.name[::-1], user.id))
     return HttpResponseRedirect('/account')
 
-@csrf_exempt
 def upvote(request):
     voter = '';
     try:
@@ -228,7 +226,6 @@ def upvote(request):
     response_data['score'] = score
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@csrf_exempt
 def downvote(request):
     voter = '';
     try:
