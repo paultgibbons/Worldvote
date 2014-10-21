@@ -10,7 +10,8 @@ import os
 import os.path
 import re
 import sys
-from .models import User
+import time
+from .models import User, Vote
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
@@ -232,10 +233,31 @@ def upvote(request):
                                         WHERE voter = '%s' AND votee = '%s'"""
                                         % (voter, votee)
                                     )
-        score += 1
-        cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
+        canVote = True
+        epoch = int(time.time())
+        last_tuple = last_update.fetchone()
+        if last_tuple is None:
+            voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 1)
+            voteModel.save()
+        elif last_tuple[0] is not None:
+            last = last_tuple[0]
+            canVote = epoch - last > 60
+            if not canVote:
+                score = 'tooQuick'
+        else:
+            canVote = False
+            score = 'noneError'
+        if canVote:
+            score += 1
+            cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
+            cursor.execute("""UPDATE hello_Vote 
+                              SET last_update = %d 
+                              WHERE voter = '%s' 
+                              AND votee = '%s'"""
+                            % (epoch, voter, votee)
+                        )
     else:
-        score = False
+        score = 'self'
     response_data = {}
     response_data['score'] = score
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -251,10 +273,36 @@ def downvote(request):
     cursor = connection.cursor()
     score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
     if votee != voter:
-        score -= 1
-        cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
+        last_update = cursor.execute("""SELECT last_update 
+                                        FROM hello_Vote 
+                                        WHERE voter = '%s' AND votee = '%s'"""
+                                        % (voter, votee)
+                                    )
+        canVote = True
+        epoch = int(time.time())
+        last_tuple = last_update.fetchone()
+        if last_tuple is None:
+            voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 2)
+            voteModel.save()
+        elif last_tuple[0] is not None:
+            last = last_tuple[0]
+            canVote = epoch - last > 60
+            if not canVote:
+                score = 'tooQuick'
+        else:
+            canVote = False
+            score = 'noneError'
+        if canVote:
+            score -= 1
+            cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
+            cursor.execute("""UPDATE hello_Vote 
+                              SET last_update = %d 
+                              WHERE voter = '%s' 
+                              AND votee = '%s'"""
+                            % (epoch, voter, votee)
+                        )
     else:
-        score = False
+        score = 'self'
     response_data = {}
     response_data['score'] = score
     return HttpResponse(json.dumps(response_data), content_type="application/json")

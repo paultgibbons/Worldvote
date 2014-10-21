@@ -12,5 +12,5 @@ class User(models.Model):
 class Vote(models.Model):
     voter = models.CharField(max_length=64)
     votee = models.CharField(max_length=64)
-    last_update = models.DateTimeField()
+    last_update = models.IntegerField()
     direction = models.IntegerField()
