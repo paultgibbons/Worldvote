@@ -182,13 +182,11 @@ def reverse(request):
     email = 'error'
     try:
         email = request.session['user_email']
-        del request.session['user_email']
     except KeyError:
         pass
     cursor = connection.cursor()
     user = User.objects.get(email=email)
-    print >> sys.stderr, user.name
-    cursor.execute("UPDATE hello_User SET name = '%s' WHERE id = %d" % user.name[::-1], user.id)
+    cursor.execute("UPDATE hello_User SET name = '%s' WHERE id = %d" % (user.name[::-1], user.id))
     return HttpResponseRedirect('/account')
 
 # TODO: delete
