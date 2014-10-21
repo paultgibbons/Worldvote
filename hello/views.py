@@ -61,13 +61,22 @@ def index(request):
     return HttpResponseRedirect('/register')
 
 def search(request):
-    email = request.GET['email']
+    query = request.GET['query']
     cursor = connection.cursor()
     try:
-        user = User.objects.get(email=email)
+        # search ny email
+        user = User.objects.get(email=query)
         return HttpResponseRedirect('/%d' % int(user.id))
     except:
-        return HttpResponseRedirect('/%d' % -1)
+        pass
+    try:
+        # search by name
+        user = User.objects.get(name__iexact=query)
+        return HttpResponseRedirect('/%d' % int(user.id))
+    except:
+        pass
+
+    return HttpResponseRedirect('/%d' % 20000000000)
 
 def login(request):
     if 'user_email' in request.session:

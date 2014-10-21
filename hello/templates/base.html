@@ -11,7 +11,7 @@
         <nav>
             <a href="//{{ request.get_host }}" id="nav-title">Worldvote</a>
             <form action="search">
-                <input type="text" id="nav-search" placeholder="Search Email" name="email">
+                <input type="text" id="nav-search" placeholder="Search" name="query">
             </form>
             {% if user %}
                 <a href="//{{ request.get_host }}/logout" class="nav-link">Logout</a>
