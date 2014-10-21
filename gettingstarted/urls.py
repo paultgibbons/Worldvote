@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     url(r'^delete/?', hello.views.delete, name='delete'),
     url(r'^reverse/?', hello.views.reverse, name='reverse'),
     url(r'^search/?', hello.views.search, name='search'),
+    url(r'^upvote/?', hello.views.upvote, name='upvote'),
+    url(r'^downvote/?', hello.views.downvote, name='downvote'),
 
     url(r'^db', hello.views.db, name='db'),
     url(r'^admin/', include(admin.site.urls)),

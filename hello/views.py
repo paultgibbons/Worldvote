@@ -4,6 +4,11 @@ from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from datetime import datetime
 from django.db import connection, transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render_to_response
+import json
+
+from django.http import HttpResponse
 
 import os
 import os.path
@@ -203,6 +208,47 @@ def reverse(request):
     user = User.objects.get(email=email)
     cursor.execute("UPDATE hello_User SET name = '%s' WHERE id = %d" % (user.name[::-1], user.id))
     return HttpResponseRedirect('/account')
+
+@csrf_exempt
+def upvote(request):
+    voter = '';
+    try:
+        voter = request.session['user_email']
+    except:
+        return HttpResponseRedirect('/login')
+    votee = request.POST['email']
+
+    cursor = connection.cursor()
+    score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
+    if votee != voter:
+        score += 1
+        cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
+    else:
+        score = False
+    response_data = {}
+    response_data['score'] = score
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+@csrf_exempt
+def downvote(request):
+    voter = '';
+    try:
+        voter = request.session['user_email']
+    except:
+        return HttpResponseRedirect('/login')
+    votee = request.POST['email']
+    
+    cursor = connection.cursor()
+    score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
+    if votee != voter:
+        score -= 1
+        cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
+    else:
+        score = False
+    response_data = {}
+    response_data['score'] = score
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
 
 # TODO: delete
 def db(request):
