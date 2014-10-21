@@ -5,6 +5,7 @@ from django.core.context_processors import csrf
 from datetime import datetime
 from django.db import connection, transaction
 
+import os
 import os.path
 import sys
 import re
@@ -14,6 +15,7 @@ from .models import User
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 PASSWORD_RE = re.compile(r'^.{4,}')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
@@ -134,7 +136,7 @@ def register(request):
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
-            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=image, imgurl='')
+            userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=None, imgurl='')
             userModel.save()
             src = str(userModel.id) + os.path.splitext(image.name)[1]
             image.name = src
@@ -178,16 +180,16 @@ def profile(request, userid):
     return render(request, 'profile.html', params)
 
 def delete(request):
-    # if request.method == 'GET':
-    # return HttpResponseRedirect('/')
     email = 'error'
     try:
         email = request.session['user_email']
         del request.session['user_email']
     except KeyError:
         pass
+    user = User.objects.get(email = email)
+    os.remove(BASE_DIR + '/../mediafiles/'+user.imgurl)
+
     cursor = connection.cursor()
-    # Data modifying operation - commit required
     cursor.execute("DELETE FROM hello_User WHERE email = '%s'" % email)
     return HttpResponseRedirect('/login')
 
