@@ -28,7 +28,8 @@
             <li id="email">Email: {{ person.email }}</li>
             <li id="score">Score: {{ person.score }}</li><span id="errorVote"> </span>
         </ul>
-        <img src="//{{ request.get_host }}/media/{{ person.imgurl }}" height="500px">
+        <!--img src="//{{ request.get_host }}/media/{{ person.imgurl }}" height="500px"-->
+        <img src="{{person.image}}" height="500px">
         <div id="voteOptions">
             {% csrf_token %}
             <div class="vote" id="up" onclick="upvote()">

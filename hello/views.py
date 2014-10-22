@@ -10,7 +10,7 @@ import os
 import os.path
 import re
 import sys
-from .db import get_db
+from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete
 import time
 from .models import User, Vote
 
@@ -67,13 +67,14 @@ def search(request):
     cursor = connection.cursor()
     try:
         # search ny email
-        user = User.objects.get(email=query)
+        user = user_login(query)#User.objects.get(email=query)
         return HttpResponseRedirect('/%d' % int(user.id))
     except:
         pass
     try:
         # search by name
-        user = User.objects.get(name__iexact=query)
+        #user = User.objects.get(name__iexact=query)
+        user = user_by_name(query)#User.objects.get(email=query)
         return HttpResponseRedirect('/%d' % int(user.id))
     except:
         pass
@@ -94,25 +95,15 @@ def login(request):
         'request': request
     }
 
-    # TEST CODE TODO
-    db = get_db()
-    c = db.cursor();
-    c.execute("""SHOW TABLES LIKE 'User'""")
-    if c.fetchone() is None:
-        params['emailInput'] = 'hi'
-    db.close()
-    # TEST CODE TODO
-    return render(request, 'login.html', params)
-
     params.update(csrf(request))
     if request.method == 'GET':
         return render(request, 'login.html', params)
     elif request.method == 'POST':
         email = request.POST['email']
-        pw = request.POST['password']
+        pw = get_hashed_password(request.POST['password'])
 
         try:
-            user = User.objects.get(email=email);
+            user = user_login(email) #User.objects.get(email=email);
         except:
             user = None
 
@@ -159,6 +150,8 @@ def register(request):
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
+            user_register(name, pw1, email, image)
+            return HttpResponseRedirect('/login')
             userModel = User(name=name, password=pw1, email=email, last_update=datetime.now(), score=0, image=None, imgurl='')
             userModel.save()
             src = str(userModel.id) + os.path.splitext(image.name)[1]
@@ -177,7 +170,9 @@ def register(request):
 def account(request):
     params = { 'user': None, 'request' : request }
     if 'user_email' in request.session:
-        params['user'] = User.objects.get(email=request.session['user_email'])
+        #params['user'] = User.objects.get(email=request.session['user_email'])
+        email = request.session['user_email']
+        params['user'] = user_login(email)
         return render(request, 'account.html', params)
     else:
         return HttpResponseRedirect('/login')
@@ -185,7 +180,9 @@ def account(request):
 def add(request):
     params = { 'user': None, 'request' : request }
     if 'user_email' in request.session:
-        params['user'] = User.objects.get(email=request.session['user_email'])
+        #params['user'] = User.objects.get(email=request.session['user_email'])
+        email = request.session['user_email']
+        params['user'] = user_login(email)
         return render(request, 'add.html', params)
     else:
         return HttpResponseRedirect('/login')
@@ -193,10 +190,13 @@ def add(request):
 def profile(request, userid):
     params = { 'user': None, 'request' : request }
     if 'user_email' in request.session:
-        params['user'] = User.objects.get(email=request.session['user_email'])
+        #params['user'] = User.objects.get(email=request.session['user_email'])
+        email = request.session['user_email']
+        params['user'] = user_login(email)
 
     try:
-        params['person'] = User.objects.get(id=userid)
+        #params['person'] = User.objects.get(id=userid)
+        params['person'] = user_by_id(userid)
     except:
         params['person'] = None
 
@@ -209,14 +209,17 @@ def delete(request):
         del request.session['user_email']
     except KeyError:
         pass
-    user = User.objects.get(email = email)
+    '''
+    #user = User.objects.get(email = email)
     try:
-        os.remove(BASE_DIR + '/../mediafiles/'+user.imgurl)
+        pass#os.remove(BASE_DIR + '/../mediafiles/'+user.imgurl)
     except:
         pass
+    '''
 
-    cursor = connection.cursor()
-    cursor.execute("DELETE FROM hello_User WHERE email = '%s'" % email)
+    user_delete(email)
+    #cursor = connection.cursor()
+    #cursor.execute("DELETE FROM hello_User WHERE email = '%s'" % email)
     return HttpResponseRedirect('/login')
 
 def reverse(request):
@@ -225,9 +228,16 @@ def reverse(request):
         email = request.session['user_email']
     except KeyError:
         pass
-    cursor = connection.cursor()
-    user = User.objects.get(email=email)
-    cursor.execute("UPDATE hello_User SET name = '%s' WHERE id = %d" % (user.name[::-1], user.id))
+    #cursor = connection.cursor()
+    #user = User.objects.get(email=email)
+    print >>sys.stderr, 'hi'
+    user = user_login(email)
+    db=get_db()
+    print >>sys.stderr, 'hi'
+    db.cursor().execute("UPDATE Users SET name = '%s' WHERE id = %d" % (user.name[::-1], int(user.id)))
+    db.commit()
+    print >>sys.stderr, 'hi'
+    db.close()
     return HttpResponseRedirect('/account')
 
 def upvote(request):
@@ -238,20 +248,24 @@ def upvote(request):
         return HttpResponseRedirect('/login')
     votee = request.POST['email']
 
-    cursor = connection.cursor()
-    score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
+    db=get_db()
+    cursor = db.cursor()#connection.cursor()
+    #score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
+    cursor.execute("SELECT score FROM Users WHERE email = '%s'" % votee)
+    score = cursor.fetchone()[0]
     if votee != voter:
-        last_update = cursor.execute("""SELECT last_update 
-                                        FROM hello_Vote 
+        cursor.execute("""SELECT last_update 
+                                        FROM Votes 
                                         WHERE voter = '%s' AND votee = '%s'"""
                                         % (voter, votee)
                                     )
         canVote = True
         epoch = int(time.time())
-        last_tuple = last_update.fetchone()
+        last_tuple = cursor.fetchone()
         if last_tuple is None:
-            voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 1)
-            voteModel.save()
+            #voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 1)
+            #voteModel.save()
+            vote_create(voter, votee, epoch, 1)
         elif last_tuple[0] is not None:
             last = last_tuple[0]
             canVote = epoch - last > 60
@@ -262,8 +276,8 @@ def upvote(request):
             score = 'noneError'
         if canVote:
             score += 1
-            cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
-            cursor.execute("""UPDATE hello_Vote 
+            cursor.execute("UPDATE Users SET score = %d WHERE email = '%s'" % (score, votee))
+            cursor.execute("""UPDATE Votes 
                               SET last_update = %d 
                               WHERE voter = '%s' 
                               AND votee = '%s'"""
@@ -271,6 +285,8 @@ def upvote(request):
                         )
     else:
         score = 'self'
+    db.commit()
+    db.close()
     response_data = {}
     response_data['score'] = score
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -283,20 +299,23 @@ def downvote(request):
         return HttpResponseRedirect('/login')
     votee = request.POST['email']
     
-    cursor = connection.cursor()
-    score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
+    db=get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT score FROM Users WHERE email = '%s'" % votee)
+    score = cursor.fetchone()[0]
     if votee != voter:
-        last_update = cursor.execute("""SELECT last_update 
-                                        FROM hello_Vote 
+        cursor.execute("""SELECT last_update 
+                                        FROM Votes 
                                         WHERE voter = '%s' AND votee = '%s'"""
                                         % (voter, votee)
                                     )
         canVote = True
         epoch = int(time.time())
-        last_tuple = last_update.fetchone()
+        last_tuple = cursor.fetchone()
         if last_tuple is None:
-            voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 2)
-            voteModel.save()
+            #voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 2)
+            #voteModel.save()
+            vote_create(voter, votee, epoch, 2)
         elif last_tuple[0] is not None:
             last = last_tuple[0]
             canVote = epoch - last > 60
@@ -307,8 +326,8 @@ def downvote(request):
             score = 'noneError'
         if canVote:
             score -= 1
-            cursor.execute("UPDATE hello_User SET score = %d WHERE email = '%s'" % (score, votee))
-            cursor.execute("""UPDATE hello_Vote 
+            cursor.execute("UPDATE Users SET score = %d WHERE email = '%s'" % (score, votee))
+            cursor.execute("""UPDATE Votes 
                               SET last_update = %d 
                               WHERE voter = '%s' 
                               AND votee = '%s'"""
@@ -316,6 +335,8 @@ def downvote(request):
                         )
     else:
         score = 'self'
+    db.commit()
+    db.close()
     response_data = {}
     response_data['score'] = score
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -323,6 +344,13 @@ def downvote(request):
 
 # TODO: delete
 def db(request):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Users")
+    rows = cursor.fetchall()
+    print >> sys.stderr, len(rows)
+    db.close()
+    return HttpResponseRedirect('/register')
     users = User.objects.all()
 
     return render(request, 'db.html', {'request':request,'users':users})
