@@ -102,6 +102,7 @@ def login(request):
         params['emailInput'] = 'hi'
     db.close()
     # TEST CODE TODO
+    return render(request, 'login.html', params)
 
     params.update(csrf(request))
     if request.method == 'GET':
