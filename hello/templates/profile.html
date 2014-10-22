@@ -26,7 +26,7 @@
         <ul>
             <li id="name">Name: {{ person.name }}</li>
             <li id="email">Email: {{ person.email }}</li>
-            <li id="score">Score: {{ person.score }} <span id="selfVote"></span></li>
+            <li id="score">Score: {{ person.score }}</li><span id="errorVote"> </span>
         </ul>
         <img src="//{{ request.get_host }}/media/{{ person.imgurl }}" height="500px">
         <div id="voteOptions">
@@ -71,9 +71,17 @@
                         var score = document.getElementById('score');
                         var response = parseIfJSON(request.responseText);
                         var newScore = response['score'];
-                        if ( newScore === false ) {
-                            var selfVote = document.getElementById('selfVote');
+                        if ( newScore === 'self' ) {
+                            var selfVote = document.getElementById('errorVote');
                             selfVote.innerHTML = '(cannot vote for yourself)';
+                        } else if ( newScore === 'tooQuick' ) { console.log(document);
+                            var quickVote = document.getElementById('errorVote');
+                            if (quickVote !== null) {
+                                quickVote.innerHTML = ' (Must wait 60 seconds to vote again)';
+                            }
+                        } else if ( newScore === 'noneError') {
+                            var noneVote = document.getElementById('errorVote');
+                            noneVote.innerHTML = ' (An error occured on the server)'
                         } else {
                             score.innerHTML = 'Score: '+ newScore;
                         }
