@@ -11,6 +11,7 @@ import os.path
 import re
 import sys
 from .models import User
+from .db import get_db
 
 NAME_RE = re.compile(r"^[ a-zA-Z0-9\s_-]+$")
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
@@ -79,6 +80,7 @@ def search(request):
     return HttpResponseRedirect('/%d' % 20000000000)
 
 def login(request):
+
     if 'user_email' in request.session:
         return HttpResponseRedirect('/account')
 
@@ -90,6 +92,16 @@ def login(request):
         'passwordError': '',
         'request': request
     }
+
+    # TEST CODE TODO
+    db = get_db()
+    c = db.cursor();
+    c.execute("""SHOW TABLES LIKE 'User'""")
+    if c.fetchone() is None:
+        params['emailInput'] = 'hi'
+    db.close()
+    # TEST CODE TODO
+
     params.update(csrf(request))
     if request.method == 'GET':
         return render(request, 'login.html', params)
