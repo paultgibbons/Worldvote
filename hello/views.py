@@ -19,21 +19,17 @@ EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 PASSWORD_RE = re.compile(r'^.{4,}')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def dictfetchall(cursor):
-    "Returns all rows from a cursor as a dict"
-    desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
-
 def alreadyExists(email):
-    cursor = connection.cursor()
+    db = get_db()
+    cursor = db.cursor()
+
 
     # Data modifying operation - commit required
-    cursor.execute("SELECT email FROM hello_User WHERE email = '%s'" % email)
+    cursor.execute("SELECT email FROM Users WHERE email = '%s'" % email)
+    matches = len(cursor.fetchall())
+    db.close()
     
-    return len(dictfetchall(cursor)) != 0
+    return matches != 0
 
 def validate(name, pw, verify, email):
     nameError = ''

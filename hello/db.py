@@ -30,6 +30,7 @@ def create_table_user():
     db = get_db()
     try:
         cursor = db.cursor()
+        cursor.execute("DROP TABLE IF EXISTS Users;")
         cursor.execute("""CREATE TABLE Users (
                 id          INTEGER PRIMARY KEY,
                 name        VARCHAR(64),
@@ -48,6 +49,7 @@ def create_table_vote():
     db = get_db()
     try:
         cursor = db.cursor()
+        cursor.execute("DROP TABLE IF EXISTS Votes;")
         cursor.execute("""CREATE TABLE Votes (
                 voter       VARCHAR(64),
                 votee       VARCHAR(64),
