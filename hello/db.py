@@ -14,7 +14,7 @@ class Struct(object):
 def get_db():
     try:
         return mysql.connect('engr-cpanel-mysql.engr.illinois.edu',
-            'cjzhang2_cs411', r',-uE%lt*d@4a', 'cjzhang2_cs411')
+            'cjzhang2_cs411', """PASSWORD ONE GOES HERE""", 'cjzhang2_cs411')
     except:
         pass
     return None
@@ -63,7 +63,7 @@ def create_table_vote():
     db.close()
 
 def get_hashed_password(password):
-    dk = hashlib.pbkdf2_hmac('sha256', password, 'DS1i.x8FpGKR', 100000)
+    dk = hashlib.pbkdf2_hmac('sha256', password, """SALT GOES HERE""", 100000)
     return binascii.hexlify(dk)
 
 def get_base64_image(image):

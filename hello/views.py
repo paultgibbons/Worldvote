@@ -237,6 +237,7 @@ def reverse(request):
     return HttpResponseRedirect('/account')
 
 def upvote(request):
+    # TODO IF NOT LOGGED IN THEN ???
     voter = '';
     try:
         voter = request.session['user_email']
