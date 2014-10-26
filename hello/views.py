@@ -10,7 +10,7 @@ import os
 import os.path
 import re
 import sys
-from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete
+from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple
 import time
 from .models import User, Vote
 
@@ -50,13 +50,16 @@ def validate(name, pw, verify, email):
 
     return nameError, verifyError, emailError    
 
-# Create your views here.
 def index(request):
-    # params = { 'user': None, 'request' : request }
-    # if 'user_email' in request.session:
-    #     params['user'] = User.objects.get(email=request.session['user_email'])
-    # return render(request, 'index.html', params)
-    return HttpResponseRedirect('/register')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Users")
+    users = cursor.fetchall()
+    temp = []
+    for user in users:
+        temp.append(get_user_from_tuple(user))
+    users = temp
+    return render(request, 'index.html', {'request':request, 'users':users})
 
 def search(request):
     query = request.GET['query']
@@ -142,7 +145,10 @@ def register(request):
         pw1 = request.POST['password1']
         pw2 = request.POST['password2']
         email = request.POST['email']
-        image = request.FILES['image']
+        try:
+            image = request.FILES['image']
+        except:
+            pass
 
         nameError, verifyError, emailError = validate(name, pw1, pw2, email)
         if nameError + verifyError + emailError == '':
@@ -224,25 +230,23 @@ def reverse(request):
         email = request.session['user_email']
     except KeyError:
         pass
-    #cursor = connection.cursor()
-    #user = User.objects.get(email=email)
-    print >>sys.stderr, 'hi'
     user = user_login(email)
     db=get_db()
-    print >>sys.stderr, 'hi'
     db.cursor().execute("UPDATE Users SET name = '%s' WHERE id = %d" % (user.name[::-1], int(user.id)))
     db.commit()
-    print >>sys.stderr, 'hi'
     db.close()
     return HttpResponseRedirect('/account')
 
-def upvote(request):
-    # TODO IF NOT LOGGED IN THEN ???
+def vote(request):
     voter = '';
     try:
         voter = request.session['user_email']
     except:
-        return HttpResponseRedirect('/login')
+        score = 'notLoggedIn'
+        response_data = {}
+        response_data['score'] = score
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+
     votee = request.POST['email']
 
     db=get_db()
@@ -260,8 +264,6 @@ def upvote(request):
         epoch = int(time.time())
         last_tuple = cursor.fetchone()
         if last_tuple is None:
-            #voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 1)
-            #voteModel.save()
             vote_create(voter, votee, epoch, 1)
         elif last_tuple[0] is not None:
             last = last_tuple[0]
@@ -272,7 +274,8 @@ def upvote(request):
             canVote = False
             score = 'noneError'
         if canVote:
-            score += 1
+            change = 1 if (request.POST['direction'] == 'upvote') else -1
+            score += change
             cursor.execute("UPDATE Users SET score = %d WHERE email = '%s'" % (score, votee))
             cursor.execute("""UPDATE Votes 
                               SET last_update = %d 
@@ -288,68 +291,10 @@ def upvote(request):
     response_data['score'] = score
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-def downvote(request):
-    voter = '';
-    try:
-        voter = request.session['user_email']
-    except:
-        return HttpResponseRedirect('/login')
-    votee = request.POST['email']
-    
-    db=get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT score FROM Users WHERE email = '%s'" % votee)
-    score = cursor.fetchone()[0]
-    if votee != voter:
-        cursor.execute("""SELECT last_update 
-                                        FROM Votes 
-                                        WHERE voter = '%s' AND votee = '%s'"""
-                                        % (voter, votee)
-                                    )
-        canVote = True
-        epoch = int(time.time())
-        last_tuple = cursor.fetchone()
-        if last_tuple is None:
-            #voteModel = Vote(voter=voter, votee=votee, last_update = epoch, direction = 2)
-            #voteModel.save()
-            vote_create(voter, votee, epoch, 2)
-        elif last_tuple[0] is not None:
-            last = last_tuple[0]
-            canVote = epoch - last > 60
-            if not canVote:
-                score = 'tooQuick'
-        else:
-            canVote = False
-            score = 'noneError'
-        if canVote:
-            score -= 1
-            cursor.execute("UPDATE Users SET score = %d WHERE email = '%s'" % (score, votee))
-            cursor.execute("""UPDATE Votes 
-                              SET last_update = %d 
-                              WHERE voter = '%s' 
-                              AND votee = '%s'"""
-                            % (epoch, voter, votee)
-                        )
-    else:
-        score = 'self'
-    db.commit()
-    db.close()
-    response_data = {}
-    response_data['score'] = score
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
-
-
-# TODO: delete
 def db(request):
     db = get_db()
     cursor = db.cursor()
     cursor.execute("SELECT * FROM Users")
-    rows = cursor.fetchall()
-    print >> sys.stderr, len(rows)
-    db.close()
-    return HttpResponseRedirect('/register')
-    users = User.objects.all()
-
+    users = cursor.fetchall()
     return render(request, 'db.html', {'request':request,'users':users})
-
 

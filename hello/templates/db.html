@@ -24,7 +24,7 @@
                 <li>Email: {{ user.email }}</li>
                 <li>Score: {{ user.score }}</li>
             </ul>
-            <img src="//{{ request.get_host }}/media/{{ user.imgurl }}" height="500px">
+            <img src="{{ user.image }}" height="500px">
         {% endfor %}
 
         </ul>
