@@ -8,6 +8,7 @@ import sys # TEMP
 
 import MySQLdb as mysql
 
+# todo: mysql.escape_string(...)
 class Struct(object):
     pass
 
