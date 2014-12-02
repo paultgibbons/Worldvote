@@ -332,18 +332,34 @@ def recommended(request):
 
     cur_user = request.session['user_email']
 
-    matrix = []
+    scores = {}
 
     # get data
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM Users")
-    users = cursor.fetchall()
+    cursor.execute("SELECT votee FROM Votes WHERE voter = '%s'" % (cur_user, ))
+    votees = cursor.fetchall()
+    for votee_tuple in votees:
+        scores[votee_tuple[0]] = -1
+        cursor.execute("SELECT votee FROM Votes WHERE voter = '%s'" % (votee_tuple[0], ))
+        sub_votees = cursor.fetchall()
+        for sub_votee in sub_votees:
+            sub_name = sub_votee[0]
+            if sub_name not in scores:
+                scores[sub_name] = 0
+            if scores[sub_name] != -1:
+                scores[sub_name] += 1 / len(sub_votees)
+
+    import operator
+    sorted_x = sorted(scores.items(), reverse=True, key=operator.itemgetter(1))
+    sorted_x = sorted_x[:9]
 
     # find recommendations
     temp = []
-    for user in users:
-        temp.append(get_user_from_tuple(user))
+    for x in sorted_x:
+        cursor.execute("SELECT * FROM Users WHERE email = '%s'" % (x[0], ))
+        user = cursor.fetchall()
+        temp.append(get_user_from_tuple(user[0]))
     users = temp
 
     # put into state
