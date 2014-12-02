@@ -10,7 +10,11 @@ import os
 import os.path
 import re
 import sys
+<<<<<<< HEAD
+from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple, join_query
+=======
 from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple, get_image
+>>>>>>> 97b46151be91da036a0414feef050ead27dc1c40
 import time
 from .models import User, Vote
 
@@ -179,6 +183,7 @@ def account(request):
         #params['user'] = User.objects.get(email=request.session['user_email'])
         email = request.session['user_email']
         params['user'] = user_login(email)
+        params['users'] = join_query(email)
         return render(request, 'account.html', params)
     else:
         return HttpResponseRedirect('/login')

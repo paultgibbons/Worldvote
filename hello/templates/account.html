@@ -8,6 +8,11 @@
     <form action="reverse">
         <button>Reverse Name</button>
     </form>
-
+    <div>
+        You have voted on:
+        {% for user in users %}
+            {{ user.0 }}, 
+        {% endfor %}
+    </div>
 </table>
 {% endblock %}
