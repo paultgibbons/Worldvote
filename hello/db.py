@@ -6,7 +6,10 @@ import time
 
 import sys # TEMP
 
-import MySQLdb as mysql
+import MySQLdb
+from PIL import Image
+import cStringIO # todo: store image as blob and maybe we dont need to convert
+from django.http import HttpResponse
 
 # todo: mysql.escape_string(...)
 class Struct(object):
@@ -14,7 +17,7 @@ class Struct(object):
 
 def get_db():
     try:
-        return mysql.connect(host = 'engr-cpanel-mysql.engr.illinois.edu',
+        return MySQLdb.connect(host = 'engr-cpanel-mysql.engr.illinois.edu',
             #user = 'ptgibbo2_cs411', passwd = 'hunter2', db = 'ptgibbo2_cs411')
             user = 'cjzhang2_cs411', passwd = r""",-uE%lt*d@4a""", db = 'cjzhang2_cs411')
     except:
@@ -117,7 +120,7 @@ def user_login(email): # TODO should also take password?
             return get_user_from_tuple(user_tuple)
         except:
             pass
-        db.close()
+        #db.close()
     return None
 
 def user_by_id(user_id): # TODO THIS IS TEMP
@@ -135,7 +138,7 @@ def user_by_id(user_id): # TODO THIS IS TEMP
             return get_user_from_tuple(user_tuple)
         except:
             pass
-        db.close()
+        #db.close()
     return None
 
 def user_by_name(name): # TODO THIS IS TEMP
@@ -153,7 +156,7 @@ def user_by_name(name): # TODO THIS IS TEMP
             return get_user_from_tuple(user_tuple)
         except:
             pass
-        db.close()
+        #db.close()
     return None
 
 def user_delete(email):
@@ -208,6 +211,22 @@ def join_query(voter):
         db.close()
     return None
 
+def get_image(user_id, file_ext):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT image FROM Users WHERE id = %d" % int(user_id))
+    encoded = cursor.fetchone()[0]
+    db.close()
+
+    pic = cStringIO.StringIO()
+
+    offset = len('data:image/' + file_ext + ';base64')
+
+    image_string = cStringIO.StringIO(base64.b64decode(encoded[offset:]))
+    image = Image.open(image_string)
+    image.save(pic, image.format, quality = 100)
+    pic.seek(0)
+    return HttpResponse(pic, content_type='image/%s' % file_ext)
 
 
 
