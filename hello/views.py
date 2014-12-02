@@ -63,7 +63,7 @@ def index(request):
 
     user = None
     if 'user_email' in request.session:
-        user = request.session['user_email']
+        user = user_login(request.session['user_email'])
     return render(request, 'index.html', {'request':request, 'users':users, 'user':user})
 
 def search(request):
