@@ -10,8 +10,8 @@
     </form>
     <div>
         You have voted on:
-        {% for person in users %}
-            {{ person.name }}, 
+        {% for user in users %}
+            {{ user.0 }}, 
         {% endfor %}
     </div>
 </table>

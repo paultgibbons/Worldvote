@@ -198,7 +198,7 @@ def join_query(voter):
                 FROM Users
                 INNER JOIN Votes
                 ON Users.email=Votes.votee
-                WHERE Votes.voter = %s
+                WHERE Votes.voter = '%s'
                 """ % (voter))
             user_tuples = cursor.fetchall()
             db.close() # TODO can refactor
