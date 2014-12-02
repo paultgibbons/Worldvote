@@ -6,6 +6,7 @@
 <ul>
     {% for user in users %}
     <hr>
+    <a href="{{user.id}}">
     <ul>
         <!-- TODO: LINK TO USER -->
         <li class="name">Name: {{ user.name }}</li>
@@ -13,6 +14,7 @@
         <li>Score: {{ user.score }}</li>
     </ul>
     <img src="{{ user.image }}" height="500px">
+    </a>
     {% endfor %}
 </ul>
 
