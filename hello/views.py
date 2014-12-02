@@ -328,10 +328,12 @@ def recommended(request):
 
     cur_user = request.session['user_email']
 
+    matrix = []
+
     # get data
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM Users, Votes WHERE Users.email = Votes.voter")
+    cursor.execute("SELECT * FROM Users")
     users = cursor.fetchall()
 
     # find recommendations
