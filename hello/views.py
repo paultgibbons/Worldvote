@@ -307,6 +307,7 @@ def images(request, user_id, file_ext):
 
 # advanced feature: recommendations
 
+"""
 def get_next_state(links, cur_state):
     result = np.zeros(len(cur_state))
     for link, amount in zip(links, cur_state):
@@ -321,6 +322,7 @@ while True:
     if max(abs(s_n - s_p)) < 1e-9: # TODO: also limit on number of iterations
         break
     s_p = s_n
+    """
 
 def recommended(request):
     if 'user_email' not in request.session:
