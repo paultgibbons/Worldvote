@@ -188,7 +188,25 @@ def vote_create(voter, votee, timestamp, direction):
             pass
         db.close()
 
-
+def join_query(voter):
+    db = get_db()
+    if db is not None:
+        try:
+            cursor = db.cursor()
+            cursor.execute("""
+                SELECT Users.name
+                FROM Users
+                INNER JOIN Votes
+                ON Users.email=Votes.votee
+                WHERE Votes.voter = %s
+                """ % (voter))
+            user_tuples = cursor.fetchall()
+            db.close() # TODO can refactor
+            return user_tuples
+        except:
+            pass
+        db.close()
+    return None
 
 
 
