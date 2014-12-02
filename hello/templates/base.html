@@ -10,7 +10,7 @@
     <body>
         <nav>
             <a href="//{{ request.get_host }}" id="nav-title">Worldvote</a>
-            <form action="search">
+            <form action="/search/">
                 <input type="text" id="nav-search" placeholder="Search" name="query">
             </form>
             {% if user %}
