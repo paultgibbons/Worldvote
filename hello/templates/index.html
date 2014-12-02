@@ -6,12 +6,14 @@
 <ul>
     {% for user in users %}
     <hr>
-    <ul>
-        <li class="name">Name: {{ user.name }}</li>
-        <li>Email: {{ user.email }}</li>
-        <li>Score: {{ user.score }}</li>
-    </ul>
-    <img src="{{ user.image }}" height="500px">
+    <a href="{{user.id}}">
+        <ul>
+            <li class="name">Name: {{ user.name }}</li>
+            <li>Email: {{ user.email }}</li>
+            <li>Score: {{ user.score }}</li>
+        </ul>
+        <img src="{{ user.image }}" height="500px">
+    </a>
     {% endfor %}
 </ul>
 
