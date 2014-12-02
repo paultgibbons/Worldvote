@@ -10,11 +10,8 @@ import os
 import os.path
 import re
 import sys
-<<<<<<< HEAD
 from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple, join_query
-=======
-from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple, get_image
->>>>>>> 97b46151be91da036a0414feef050ead27dc1c40
+from .db import get_image
 import time
 from .models import User, Vote
 
