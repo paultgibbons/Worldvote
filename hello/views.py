@@ -54,7 +54,7 @@ def validate(name, pw, verify, email):
 def index(request):
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM Users")
+    cursor.execute("SELECT * FROM Users ORDER BY score DESC LIMIT 10")
     users = cursor.fetchall()
     temp = []
     for user in users:
