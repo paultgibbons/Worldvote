@@ -10,7 +10,7 @@ import os
 import os.path
 import re
 import sys
-from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple
+from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple, get_image
 import time
 from .models import User, Vote
 
@@ -59,7 +59,11 @@ def index(request):
     for user in users:
         temp.append(get_user_from_tuple(user))
     users = temp
-    return render(request, 'index.html', {'request':request, 'users':users})
+
+    user = None
+    if 'user_email' in request.session:
+        user = request.session['user_email']
+    return render(request, 'index.html', {'request':request, 'users':users, 'user':user})
 
 def search(request):
     query = request.GET['query']
@@ -297,4 +301,46 @@ def db(request):
     cursor.execute("SELECT * FROM Users")
     users = cursor.fetchall()
     return render(request, 'db.html', {'request':request,'users':users})
+
+def images(request, user_id, file_ext):
+    return get_image(user_id, file_ext)
+
+# advanced feature: recommendations
+
+def get_next_state(links, cur_state):
+    result = np.zeros(len(cur_state))
+    for link, amount in zip(links, cur_state):
+        for dest in link:
+            result[dest] += amount / float(len(link))
+    return result
+
+s_p = initial_state
+first_state = get_next_state(links, s_p)
+while True:
+    s_n = get_next_state(links, s_p)
+    if max(abs(s_n - s_p)) < 1e-9: # TODO: also limit on number of iterations
+        break
+    s_p = s_n
+
+def recommended(request):
+    if 'user_email' not in request.session:
+        return HttpResponseRedirect('/account')
+
+    cur_user = request.session['user_email']
+
+    # get data
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Users, Votes WHERE Users.email = Votes.voter")
+    users = cursor.fetchall()
+
+    # find recommendations
+    temp = []
+    for user in users:
+        temp.append(get_user_from_tuple(user))
+    users = temp
+
+    # put into state
+
+    return render(request, 'recommendations.html', {'request':request, 'users':users, 'user':cur_user})
 
