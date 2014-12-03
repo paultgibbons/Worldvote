@@ -364,6 +364,7 @@ def recommended(request):
     cur_user = request.session['user_email']
 
     scores = {}
+    scores[cur_user] = -1
 
     # get data
     db = get_db()
