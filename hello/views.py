@@ -529,6 +529,13 @@ def recommended(request):
     sorted_x = sorted(scores.items(), reverse=True, key=operator.itemgetter(1))
     sorted_x = sorted_x[:9]
 
+
+    result_x = []
+    for i in sorted_x:
+        if i[1] != -1:
+            result_x.append(i)
+    sorted_x = result_x
+
     # find recommendations
     temp = []
     for x in sorted_x:
