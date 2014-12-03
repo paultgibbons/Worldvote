@@ -10,8 +10,9 @@ import os
 import os.path
 import re
 import sys
-from .db import get_db, user_register, user_login, get_hashed_password, user_by_id, vote_create, user_by_name, user_delete, get_user_from_tuple, join_query
-from .db import get_image
+from .db import get_db, user_register, user_login
+from .db import get_image, user_by_id, vote_create, user_by_name, user_delete
+from .db import get_hashed_password, get_user_from_tuple, join_query
 import time
 from .models import User, Vote
 
@@ -85,6 +86,18 @@ def search(request):
 
     return HttpResponseRedirect('/%d' % 20000000000)
 
+def unpack_user(user):
+    response_data = {}
+    response_data['id'] = user.id
+    response_data['name'] = user.name
+    response_data['password'] = user.password
+    response_data['email'] = user.email
+    response_data['last_update'] = user.last_update
+    response_data['score'] = user.score
+    response_data['image'] = user.image
+
+    return response_data
+
 def markSearchName(request):
     query = request.GET['query']
     cursor = connection.cursor()
@@ -115,6 +128,118 @@ def markSearchName(request):
 
     return HttpResponse(json.dumps(response_data), content_type='application/json')
 
+# get should include session
+def markScoreboard(request):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Users ORDER BY score DESC LIMIT 10")
+    users = cursor.fetchall()
+    temp = []
+    for user in users:
+        temp.append(get_user_from_tuple(user))
+    users = temp
+
+    user = None
+    if 'user_email' in request.session:
+        user = user_login(request.session['user_email'])
+    
+    response_data = {}
+    response_data['user'] = unpack_user(user)
+    arr = []
+    for u in users:
+        arr.append(unpack_user(u))
+
+    response_data['users'] = arr
+    #return render(request, 'index.html', {'request':request, 'users':users, 'user':user})
+    return HttpResponse(json.dumps(response_data), content_type='application/json')
+
+def markVote(request):
+    voter = '';
+    try:
+        voter = request.session['user_email']
+    except:
+        score = 'notLoggedIn'
+        response_data = {}
+        response_data['score'] = score
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    votee = request.POST['email']
+
+    db=get_db()
+    cursor = db.cursor()#connection.cursor()
+    #score = cursor.execute("SELECT score FROM hello_User WHERE email = '%s'" % votee).fetchone()[0]
+    cursor.execute("SELECT score FROM Users WHERE email = '%s'" % votee)
+    score = cursor.fetchone()[0]
+    if votee != voter:
+        cursor.execute("""SELECT last_update 
+                                        FROM Votes 
+                                        WHERE voter = '%s' AND votee = '%s'"""
+                                        % (voter, votee)
+                                    )
+        canVote = True
+        epoch = int(time.time())
+        last_tuple = cursor.fetchone()
+        if last_tuple is None:
+            vote_create(voter, votee, epoch, 1)
+        elif last_tuple[0] is not None:
+            last = last_tuple[0]
+            canVote = epoch - last > 60
+            if not canVote:
+                score = 'tooQuick'
+        else:
+            canVote = False
+            score = 'noneError'
+        if canVote:
+            change = 1 if (request.POST['direction'] == 'upvote') else -1
+            score += change
+            cursor.execute("UPDATE Users SET score = %d WHERE email = '%s'" % (score, votee))
+            cursor.execute("""UPDATE Votes 
+                              SET last_update = %d 
+                              WHERE voter = '%s' 
+                              AND votee = '%s'"""
+                            % (epoch, voter, votee)
+                        )
+    else:
+        score = 'self'
+    db.commit()
+    db.close()
+    response_data = {}
+    response_data['score'] = 'valid'
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+def markLogin(request):
+    if 'user_email' in request.session:
+        return HttpResponseRedirect('/account')
+
+    # TODO: redirect if user isn't None?
+    params = {
+        'user': None,
+        'emailInput': '',
+        'emailError': '',
+        'passwordError': '',
+        'request': request
+    }
+
+    params.update(csrf(request))
+    if request.method == 'GET':
+        return render(request, 'login.html', params)
+    elif request.method == 'POST':
+        email = request.POST['email']
+        pw = get_hashed_password(request.POST['password'])
+
+        try:
+            user = user_login(email) #User.objects.get(email=email);
+        except:
+            user = None
+
+        if user and pw == user.password:
+            request.session['user_email'] = email
+            return HttpResponseRedirect('/account')
+
+        params['emailInput'] = email
+        params['emailError'] = 'Invalid username or password'
+        params['passwordError'] = ''
+        return render(request, 'login.html', params)
 
 def login(request):
 
