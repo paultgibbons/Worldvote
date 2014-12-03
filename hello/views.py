@@ -85,6 +85,28 @@ def search(request):
 
     return HttpResponseRedirect('/%d' % 20000000000)
 
+def markSearchName(request):
+    query = request.GET['query']
+    cursor = connection.cursor()
+    user = None
+    try:
+        # search ny email
+        user = user_login(query)#User.objects.get(email=query)
+        #return HttpResponseRedirect('/%d' % int(user.id))
+    except:
+        pass
+    if user is None:
+        try:
+            # search by name
+            #user = User.objects.get(name__iexact=query)
+            user = user_by_name(query)#User.objects.get(email=query)
+            #return HttpResponseRedirect('/%d' % int(user.id))
+        except:
+            pass
+
+    return HttpResponse(json.dumps(user), content_type='application/json')
+
+
 def login(request):
 
     if 'user_email' in request.session:
