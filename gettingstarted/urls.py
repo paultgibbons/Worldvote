@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     url(r'^delete/', hello.views.delete, name='delete'),
     url(r'^logout/', hello.views.logout, name='logout'),
     url(r'^vote/?', hello.views.vote, name='vote'),
+    url(r'^markSearchName/?', hello.views.markSearchName, name='markSearchName'),
 
     # other
     url(r'^admin/', include(admin.site.urls)),
