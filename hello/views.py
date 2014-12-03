@@ -104,7 +104,16 @@ def markSearchName(request):
         except:
             pass
 
-    return HttpResponse(json.dumps(user), content_type='application/json')
+    response_data = {}
+    response_data['id'] = user.id
+    response_data['name'] = user.name
+    response_data['password'] = user.password
+    response_data['email'] = user.email
+    response_data['last_update'] = user.last_update
+    response_data['score'] = user.score
+    response_data['image'] = user.image
+
+    return HttpResponse(json.dumps(response_data), content_type='application/json')
 
 
 def login(request):
