@@ -88,13 +88,22 @@ def search(request):
 
 def unpack_user(user):
     response_data = {}
-    response_data['id'] = user.id
-    response_data['name'] = user.name
-    response_data['password'] = user.password
-    response_data['email'] = user.email
-    response_data['last_update'] = user.last_update
-    response_data['score'] = user.score
-    response_data['image'] = user.image
+    if user is None:
+        response_data['id'] = -1
+        response_data['name'] = ''
+        response_data['password'] = ''
+        response_data['email'] = ''
+        response_data['last_update'] = 0
+        response_data['score'] = 0
+        response_data['image'] = ''
+    else:
+        response_data['id'] = user.id
+        response_data['name'] = user.name
+        response_data['password'] = user.password
+        response_data['email'] = user.email
+        response_data['last_update'] = user.last_update
+        response_data['score'] = user.score
+        response_data['image'] = user.image
 
     return response_data
 
@@ -118,13 +127,22 @@ def markSearchName(request):
             pass
 
     response_data = {}
-    response_data['id'] = user.id
-    response_data['name'] = user.name
-    response_data['password'] = user.password
-    response_data['email'] = user.email
-    response_data['last_update'] = user.last_update
-    response_data['score'] = user.score
-    response_data['image'] = user.image
+    if user is not None:
+        response_data['id'] = user.id
+        response_data['name'] = user.name
+        response_data['password'] = user.password
+        response_data['email'] = user.email
+        response_data['last_update'] = user.last_update
+        response_data['score'] = user.score
+        response_data['image'] = user.image
+    else:
+        response_data['id'] = -1
+        response_data['name'] = ''
+        response_data['password'] = ''
+        response_data['email'] = ''
+        response_data['last_update'] = 0
+        response_data['score'] = 0
+        response_data['image'] = ''
 
     return HttpResponse(json.dumps(response_data), content_type='application/json')
 
