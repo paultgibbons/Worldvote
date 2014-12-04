@@ -10,7 +10,7 @@ import os
 import os.path
 import re
 import sys
-from .db import get_db, user_register, user_login, get_base64_image
+from .db import get_db, user_register, user_login, get_base64_image, users_by_name
 from .db import get_image, user_by_id, vote_create, user_by_name, user_delete
 from .db import get_hashed_password, get_user_from_tuple, join_query
 import time
@@ -76,13 +76,19 @@ def search(request):
         return HttpResponseRedirect('/%d' % int(user.id))
     except:
         pass
-    try:
+    #try:
         # search by name
         #user = User.objects.get(name__iexact=query)
-        user = user_by_name(query)#User.objects.get(email=query)
-        return HttpResponseRedirect('/%d' % int(user.id))
-    except:
+        #user = user_by_name(query)
+    users = users_by_name(query)
+    if len(users) == 0:
         pass
+    elif len(users) == 1:
+        return HttpResponseRedirect('/%d' % int(users[0].id))
+    else:
+        return render(request, "multiSearch.html", {'users':users})
+    #except:
+    #    pass
 
     return HttpResponseRedirect('/%d' % 20000000000)
 

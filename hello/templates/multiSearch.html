@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Worldvote{% endblock %}
+{% block content %}
+
+<h1>Please select which user</h1>
+<ul>
+    {% for user in users %}
+    <hr>
+    <a href="{{user.id}}">
+        <ul>
+            <li class="name">Name: {{ user.name }}</li>
+            <li>Email: {{ user.email }}</li>
+            <li>Score: {{ user.score }}</li>
+        </ul>
+        <img src="{{ user.image }}" height="500px">
+    </a>
+    {% endfor %}
+</ul>
+
+{% endblock %}

@@ -159,6 +159,24 @@ def user_by_name(name): # TODO THIS IS TEMP
         #db.close()
     return None
 
+def users_by_name(name): # TODO THIS IS TEMP
+    db = get_db()
+    if db is not None:
+        #try:
+        cursor = db.cursor()
+        cursor.execute("""
+            SELECT *
+            FROM Users
+            WHERE name = '%s'
+            """ % (name, ))
+        user_tuples = cursor.fetchall()
+        db.close() # TODO can refactor
+        return [get_user_from_tuple(u) for u in user_tuples]
+        #except:
+        #    pass
+        #db.close()
+    return None
+
 def user_delete(email):
     db = get_db()
     if db is not None:
