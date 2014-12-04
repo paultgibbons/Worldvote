@@ -2,17 +2,27 @@
 {% block title %}Worldvote{% endblock %}
 {% block content %}
 <table>
+    <tr>
     <form action="/delete/">
-        <button>Delete</button>
+        <button>Delete Account</button>
     </form>
+    </tr><br>
+    <tr>
     <form action="/reverse/">
         <button>Reverse Name</button>
     </form>
+    </tr><br>
+    <tr>
+        <a href = "/nameChange/">Change name</a>
+    </tr><br>
+    <tr>
+        <a href = "/imageChange/">Change image</a>
+    </tr><br>
+</table>
     <div>
         You have voted on:
         {% for user in users %}
             {{ user.0 }}, 
         {% endfor %}
     </div>
-</table>
 {% endblock %}

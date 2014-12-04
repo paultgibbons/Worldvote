@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     url(r'^([0-9]+)/', hello.views.profile, name='profile'),
     url(r'^search/', hello.views.search, name='search'),
     url(r'^recommended/', hello.views.recommended, name='recommended'),
+    url(r'^nameChange/', hello.views.nameChange, name='nameChange'),
+    url(r'^imageChange/', hello.views.imageChange, name='imageChange'),
 
     # redirects and xml http requests
     url(r'^delete/', hello.views.delete, name='delete'),

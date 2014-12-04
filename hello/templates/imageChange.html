@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Worldvote{% endblock %}
+{% block content %}
+
+<form method="POST" enctype="multipart/form-data"> {% csrf_token %}
+    <tr>
+      <td class="label">
+        New Image
+      </td>
+      <td>
+        <input type ="file" name="image">
+      </td>
+    </tr>
+    <input type="submit">
+</form>
+
+{% endblock %}
