@@ -4,4 +4,4 @@ Fall 2014 CS 411 (Databases) project
 
 made using python + django, sql db, hosted on heroku
 
-hosted at www.worldvote.herokuapp.com
+hosted at http://worldvote.herokuapp.com
